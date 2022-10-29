@@ -60,7 +60,7 @@
                                         </div> --}}
                                         <div class="col-md-3">
                                             <div class="form-group">
-                                                <label for="">Payment Mode</label>
+                                                <label for="">Payment Mode </label>
                                                 <input type="text" class="inputFieldHeight form-control" value="{{$invoice->pay_mode}}" readonly>
                                             </div>
                                         </div>
@@ -73,6 +73,11 @@
                                     </div>
                                     <div class="table-responsive">
                                         @isset($invoice)
+                                        @php
+                                            $invoice_total= $invoice->amount+$invoice->vat_amount;
+                                        @endphp
+                                        @if ($invoice_total<10000)
+                                            
                                         <table class="table mb-0 table-sm table-hover">
                                             <thead  class="thead-light">
                                                 <tr style="height: 50px;">
@@ -83,7 +88,7 @@
                                                     <th>QTY</th>
                                                     <th>Rate</th>
                                                     <th>Amount</th>
-                                                    <th>Vat%</th>
+                                                    
                                                 </tr>
                                             </thead>
                                             <tbody class="table-sm">
@@ -98,7 +103,6 @@
                                                     <td>{{$item->qty}}</td>
                                                     <td>{{$item->rate}}</td>
                                                     <td>{{$item->amount}}</td>
-                                                    <td>{{$item->vat_rate}}</td>
                                                                                                         
                                                     
                                                 </tr>
@@ -127,11 +131,75 @@
                                                 
                                             </tbody>
                                         </table>
+                                        @else
+                                        <table class="table mb-0 table-sm table-hover">
+                                            <thead  class="thead-light">
+                                                <tr style="height: 50px;">
+                                                    <th>SL No.</th>
+                                                    <th>Date</th>
+                                                    <th>Truck</th>
+                                                    <th>Description</th>
+                                                    <th>QTY</th>
+                                                    <th>Rate</th>
+                                                    <th>Amount</th>
+                                                    <th>Vat</th>
+                                                    <th>Total Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="table-sm">
+                                                
+                                                @foreach ($invoice->items as $item)
+
+                                                <tr class="trFontSize t-row">
+                                                    <td>{{$item->id}}</td>
+                                                    <td>{{$item->date}}</td>
+                                                    <td>{{$item->truck->vehicle_number}}</td>
+                                                    <td>{{$item->description}}</td>
+                                                    <td>{{$item->qty}}</td>
+                                                    <td>{{$item->rate}}</td>
+                                                    <td>{{$item->amount}}</td>
+                                                    <td>{{$item->vat_amount}}</td>
+                                                    <td>{{$item->amount + $item->vat_amount}}</td>
+                                                                                                        
+                                                    
+                                                </tr>
+                                                @endforeach
+                                                <tr class="trFontSize">
+                                                    <td colspan="6" align="right">Total Vat</td>
+                                                    <td align="right">{{ $invoice->vat_amount}}</td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr class="trFontSize">
+                                                    <td colspan="6" align="right">Total</td>
+                                                    <td align="right">{{ $invoice->vat_amount+$invoice->amount}}</td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr class="trFontSize">
+                                                    <td colspan="6" align="right">Payment Applied</td>
+                                                    <td align="right">{{ $invoice->paid_amount}}</td>
+                                                    <td></td>
+                                                </tr>
+                                                <tr class="trFontSize">
+                                                    <td colspan="6" align="right">Balance Due</td>
+                                                    <td align="right">{{ $invoice->due_amount}}</td>
+                                                    <td></td>
+                                                </tr>
+                                                
+                                                
+                                            </tbody>
+                                        </table>
+                                        @endif
                                         
                                         @endisset
+
+                                        
                                     </div>
                                 </form>
+
                             </div>
+                            <p class="text-center">
+                                <a href="{{ route('invoice-print', $invoice->id)}}" class="btn btn-info">Print</a>
+                            </p>
                         </div>
                     </div>
                 </div>

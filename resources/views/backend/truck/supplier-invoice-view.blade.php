@@ -25,7 +25,7 @@
                         <div class="col-12">
                             <div class="cardStyleChange p-2">
                                 <div class="d-flex">
-                                    <h4 class="flex-grow-1">Supplier Invoice</h4>
+                                    <h4 class="flex-grow-1">Supplier Invoice Details</h4>
                                     {{-- <div>
                                         <button type="button" class="btn btn-primary btn_create formButton mr-1" title="Add" data-toggle="modal" data-target="#newTruckAddModal">
                                             <div class="d-flex">
@@ -37,133 +37,102 @@
                                         </button>
                                     </div> --}}
                                 </div>
-                                <form action="{{ route('save-supplier-invoice')}}" method="POST">
+                                <form action="{{ route('save-customer-invoice')}}" method="POST">
                                     @csrf
                                     <div class="row">
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="">Supplier Name</label>
-                                                <select name="supplier_id" class="inputFieldHeight form-control common-select2">
-                                                    <option value="">Select Name</option>
-                                                    @foreach ($suppliers as $supplier)
-                                                    <option value="{{$supplier->id}}" {{isset($supplier_id) && $supplier_id== $supplier->id ? 'selected' : ''}} >{{ $supplier->pi_name}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" class="inputFieldHeight form-control" value="{{$invoice->supplier->pi_name}}" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="">Project Name</label>
-                                                <select name="project" class="inputFieldHeight form-control common-select2">
-                                                    @foreach ($projects as $project)
-                                                        <option value="{{$project->id}}">{{ $project->proj_name}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" class="inputFieldHeight form-control" value="{{$invoice->project->proj_name}}" readonly>
                                             </div>
                                         </div>
-                                        <div class="col-md-3">
+                                        {{-- <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="">Cost Center</label>
-                                                <select name="cost_center" class="inputFieldHeight form-control common-select2">
-                                                    @foreach ($cost_centers as $cost_center)
-                                                        <option value="{{$cost_center->id}}">{{ $cost_center->cc_name}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" class="inputFieldHeight form-control" value="{{$invoice->customer->pi_name}}"readonly>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="">Payment Mode</label>
-                                                <select name="pay_mode" class="inputFieldHeight form-control common-select2">
-                                                    @foreach ($pay_modes as $pay_mode)
-                                                        <option value="{{$pay_mode->title}}">{{ $pay_mode->title}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" class="inputFieldHeight form-control" value="{{$invoice->pay_mode}}" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="form-group">
                                                 <label for="">Date</label>
-                                                <input type="date" class="inputFieldHeight form-control" name="date" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="">Invoice Upload</label>
-                                                <input type="file" class="inputFieldHeight form-control" name="invoice_scan" required>
+                                                <input type="date" class="inputFieldHeight form-control" name="date" value="{{$invoice->date}}" readonly>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="table-responsive">
-                                        @isset($records)
+                                        @isset($invoice)
                                         <table class="table mb-0 table-sm table-hover">
                                             <thead  class="thead-light">
                                                 <tr style="height: 50px;">
                                                     <th>SL No.</th>
-                                                    {{-- <th>Date</th> --}}
-                                                    {{-- <th>Truck</th> --}}
+                                                    <th>Date</th>
+                                                    <th>Truck</th>
                                                     <th>Description</th>
-                                                    <th>WGT</th>
+                                                    <th>QTY</th>
                                                     <th>Rate</th>
                                                     <th>Amount</th>
-                                                    {{-- <th>Vat%</th> --}}
+                                                    <th>Vat%</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="table-sm">
                                                 
-                                                @foreach ($records as $t_record)
+                                                @foreach ($invoice->items as $item)
 
                                                 <tr class="trFontSize t-row">
-                                                    <td>{{ $loop->index+1 }}
-                                                        <input type="hidden" name="record_id[]" value="{{$t_record->id}}">
-                                                    </td>
-                                                    {{-- <td>{{$t_record->date}}</td> --}}
-                                                    {{-- <td>{{$t_record->truck->vehicle_number}}</td> --}}
-                                                    <td>From {{$t_record->crusher}} To {{$t_record->destination}}</td>
-                                                    <td>{{$t_record->qty}}
-                                                        <input type="hidden" name="" value="{{$t_record->qty}}" class="r-weight">
-                                                    </td>
-                                                    <td><input type="text" class="r-rate" name="rate[]" placeholder="Customer rate: {{$t_record->rate}}" required></td>
-                                                    <td><input type="text" class="r-amount" placeholder="Amount"></td>
-                                                    {{-- <td><input type="text" placeholder="Vat" name="v_rate" class="v-rate" value="5"></td> --}}
+                                                    <td>{{$item->id}}</td>
+                                                    <td>{{$item->date}}</td>
+                                                    <td>{{$item->truck->vehicle_number}}</td>
+                                                    <td>{{$item->description}}</td>
+                                                    <td>{{$item->qty}}</td>
+                                                    <td>{{$item->rate}}</td>
+                                                    <td>{{$item->amount}}</td>
+                                                    <td>{{$item->vat_rate}}</td>
+                                                                                                        
                                                     
                                                 </tr>
                                                 @endforeach
                                                 <tr class="trFontSize">
-                                                    <td colspan="4" align="right">Vat Rate</td>
-                                                    <td><input type="text" name="v_rate" id="v_rate" value="5"></td>
-                                                    {{-- <td></td> --}}
+                                                    <td colspan="6" align="right">Total Vat</td>
+                                                    <td align="right">{{ $invoice->vat_amount}}</td>
+                                                    <td></td>
                                                 </tr>
                                                 <tr class="trFontSize">
-                                                    <td colspan="4" align="right">Total Vat</td>
-                                                    <td><input type="text" name="total_vat" id="total_vat" readonly></td>
-                                                    {{-- <td></td> --}}
+                                                    <td colspan="6" align="right">Total</td>
+                                                    <td align="right">{{ $invoice->vat_amount+$invoice->amount}}</td>
+                                                    <td></td>
                                                 </tr>
                                                 <tr class="trFontSize">
-                                                    <td colspan="4" align="right">Total</td>
-                                                    <td><input type="text" name="total_amount" id="total_amount" readonly></td>
-                                                    {{-- <td></td> --}}
+                                                    <td colspan="6" align="right">Payment Applied</td>
+                                                    <td align="right">{{ $invoice->paid_amount}}</td>
+                                                    <td></td>
                                                 </tr>
                                                 <tr class="trFontSize">
-                                                    <td colspan="4" align="right">Payment Applied</td>
-                                                    <td><input type="text" name="payment_amount" id="payment_amount" required></td>
-                                                    {{-- <td></td> --}}
-                                                </tr>
-                                                <tr class="trFontSize">
-                                                    <td colspan="4" align="right">Balance Due</td>
-                                                    <td><input type="text" name="due_amount" id="due_amount" readonly></td>
-                                                    {{-- <td></td> --}}
+                                                    <td colspan="6" align="right">Balance Due</td>
+                                                    <td align="right">{{ $invoice->due_amount}}</td>
+                                                    <td></td>
                                                 </tr>
                                                 
                                                 
                                             </tbody>
                                         </table>
-                                        <p class="text-right"><button class="btn btn-info mt-1" type="submit">Procced</button></p>
                                         
                                         @endisset
                                     </div>
                                 </form>
                             </div>
+                            <p class="text-center"> <a href="{{ route('supplier-invoice-print',$invoice->id)}}" class="btn btn-info">Print</a></p>
                         </div>
                     </div>
                 </div>
@@ -183,8 +152,7 @@
 
         $('.r-rate').keyup(function(){
             var qty= ($(this).closest('.t-row').find('.r-weight').val());
-            // var v_rate= ($(this).closest('.t-row').find('.v-rate').val());
-            var v_rate= $('#v_rate').val();
+            var v_rate= ($(this).closest('.t-row').find('.v-rate').val());
             var rate= ($(this).val());
             var amount= qty*rate;
             $(this).closest('.t-row').find('.r-amount').val(amount);

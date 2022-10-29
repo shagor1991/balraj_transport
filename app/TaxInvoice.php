@@ -19,6 +19,7 @@ class TaxInvoice extends Model
         return $this->belongsTo(ProjectDetail::class,'project_id');
     }
 
+
     // public function cost_center(){
     //     return $this->belongsTo(CostCenter::class,'project_id');
     // }

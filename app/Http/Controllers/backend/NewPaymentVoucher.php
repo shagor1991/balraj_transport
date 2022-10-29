@@ -4,48 +4,38 @@ namespace App\Http\Controllers\backend;
 
 use App\DebitCreditVoucher;
 use App\Http\Controllers\Controller;
-use App\Invoice;
 use App\Journal;
 use App\JournalRecord;
-use App\JournalRecordsTemp;
-use App\JournalTemp;
 use App\Models\AccountHead;
 use App\Models\CostCenter;
 use App\PartyInfo;
+use App\PaymentVoucherDetailTemp;
+use App\PaymentVoucherTemp;
 use App\PayMode;
 use App\ProjectDetail;
-use App\ReceiptVoucherDetailTemp;
-use App\ReceiptVoucherTemp;
-use App\TaxInvoice;
+use App\SupplierInvoice;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
-class NewReceiptVoucher extends Controller
+class NewPaymentVoucher extends Controller
 {
-    public function receipt_voucher_form(){
+    public function payment_voucher_form(){
         $projects = ProjectDetail::all();
         $cCenters = CostCenter::all();
-        $pInfos = PartyInfo::where('pi_type','Customer')->get();
+        $pInfos = PartyInfo::where('pi_type','Supplier')->get();
         $modes = PayMode::all();
-        $invoices= TaxInvoice::where('pay_mode', 'Credit')->orWhere('due_amount','>',0)->get();
+        $invoices= SupplierInvoice::where('pay_mode', 'Credit')->orWhere('due_amount','>',0)->get();
         // return $invoices;
 
-        // $terms = PayTerm::all();
-        // $sub_invoice = Carbon::now()->format('Ymd');
-        // $txnTypes = TxnType::all();
-        // $acHeads = AccountHead::all();
-        // $vats = VatRate::all();
+        $payment_vouchers= PaymentVoucherTemp::all();
 
-        $receipt_vouchers= ReceiptVoucherTemp::all();
-
-        return view('backend.new-receipt-voucher.create', compact('projects', 'cCenters', 'pInfos','modes','invoices','receipt_vouchers'));
+        return view('backend.new-payment-voucher.create', compact('projects', 'cCenters', 'pInfos','modes','invoices','payment_vouchers'));
     }
-
 
     public function get_invoice_details(Request $request){
         
-        $invoice_data= TaxInvoice::where('invoice_no', $request->invoice_no)->first();
-        $due_amount= ReceiptVoucherDetailTemp::where('invoice_no',$request->invoice_no)->sum('paid_amount');
+        $invoice_data= SupplierInvoice::where('invoice_no', $request->invoice_no)->first();
+        $due_amount= PaymentVoucherDetailTemp::where('invoice_no',$request->invoice_no)->sum('paid_amount');
         
         return Response()->json([
             'invoice_amount' => ($invoice_data->amount+$invoice_data->vat_amount),
@@ -53,29 +43,29 @@ class NewReceiptVoucher extends Controller
         ]);
     }
 
-    public function receipt_voucher_store(Request $request){
-        // return $request;    TotalAmount     
+    public function payment_voucher_store(Request $request){
+        // return $request;
 
         $journal_amount=0;
         if($request->voucher_type=='advance'){
 
-            $ac_head_cr= AccountHead::find(36); // Accrued liability
+            $ac_head_dr= AccountHead::find(36); // Accrued liability/ Need to define account head
 
-            $receipt_voucher                = new ReceiptVoucherTemp;
-            $receipt_voucher->type          = $request->voucher_type;
-            $receipt_voucher->cost_center_id= $request->cost_center_name;
-            $receipt_voucher->party_info_id = $request->party_info;
-            $receipt_voucher->amount        = $request->total_amount;
-            $receipt_voucher->payment_date  = $request->date;
-            $receipt_voucher->pay_mode      = $request->pay_mode;
-            $receipt_voucher->narration     = $request->remark;
-            $receipt_voucher->save();
+            $payment_voucher                = new PaymentVoucherTemp();
+            $payment_voucher->type          = $request->voucher_type;
+            $payment_voucher->cost_center_id= $request->cost_center_name;
+            $payment_voucher->party_info_id = $request->party_info;
+            $payment_voucher->amount        = $request->total_amount;
+            $payment_voucher->payment_date  = $request->date;
+            $payment_voucher->pay_mode      = $request->pay_mode;
+            $payment_voucher->narration     = $request->remark;
+            $payment_voucher->save();
             
             $journal_amount = $request->total_amount;
 
 
         }elseif($request->voucher_type=='due'){
-            $ac_head_cr= AccountHead::find(33); // Accounts Receivable
+            $ac_head_dr= AccountHead::find(35); // Accounts Payable
 
             $amount=0;
             foreach($request->input('group-a') as $each_inv){
@@ -83,21 +73,21 @@ class NewReceiptVoucher extends Controller
             }
             $journal_amount = $amount;            
 
-            $receipt_voucher                = new ReceiptVoucherTemp;
-            $receipt_voucher->type          = $request->voucher_type;
-            $receipt_voucher->cost_center_id= $request->cost_center_name;
-            $receipt_voucher->party_info_id = $request->party_info;
-            $receipt_voucher->amount        = $amount;
-            $receipt_voucher->payment_date  = $request->date;
-            $receipt_voucher->pay_mode      = $request->pay_mode;
-            $receipt_voucher->narration     = $request->remark;
-            $receipt_voucher->save();
+            $payment_voucher                = new PaymentVoucherTemp();
+            $payment_voucher->type          = $request->voucher_type;
+            $payment_voucher->cost_center_id= $request->cost_center_name;
+            $payment_voucher->party_info_id = $request->party_info;
+            $payment_voucher->amount        = $amount;
+            $payment_voucher->payment_date  = $request->date;
+            $payment_voucher->pay_mode      = $request->pay_mode;
+            $payment_voucher->narration     = $request->remark;
+            $payment_voucher->save();
 
             foreach($request->input('group-a') as $each_inv){
-                $inv_details= TaxInvoice::where('invoice_no', $each_inv['invoice_no'])->first();
+                $inv_details= SupplierInvoice::where('invoice_no', $each_inv['invoice_no'])->first();
 
-                $rv_details= new ReceiptVoucherDetailTemp();
-                $rv_details->receipt_voucher_temp_id    = $receipt_voucher->id; 
+                $rv_details= new PaymentVoucherDetailTemp();
+                $rv_details->payment_voucher_temp_id    = $payment_voucher->id; 
                 $rv_details->invoice_id     = $inv_details->id;
                 $rv_details->invoice_no     = $each_inv['invoice_no'];
                 $rv_details->cost_center_id = $request->cost_center_name;
@@ -143,13 +133,13 @@ class NewReceiptVoucher extends Controller
         $journal->total_amount      = $journal_amount;
         $journal->narration         = $request->remark;
         $journal->pay_mode          = $request->pay_mode;
-        $journal->voucher_type      = 'CR';
+        $journal->voucher_type      = 'DR';
         $journal->save();
         
         if($request->pay_mode=='Cash'){
-            $ac_head_dr= AccountHead::find(1); // Cash Operating Account           
+            $ac_head_cr= AccountHead::find(1); // Cash Operating Account           
         }elseif($request->pay_mode=='Card'){
-            $ac_head_dr= AccountHead::find(37); // Bank Account
+            $ac_head_cr= AccountHead::find(37); // Bank Account
         }
 
         $jl_record= new JournalRecord();
@@ -189,19 +179,19 @@ class NewReceiptVoucher extends Controller
         $dr_cr_voucher->pay_mode        = $journal->pay_mode;
         $dr_cr_voucher->amount          = $journal->total_amount;
         $dr_cr_voucher->narration       = $journal->narration;
-        $dr_cr_voucher->type            = 'CR';
+        $dr_cr_voucher->type            = 'DR';
         $dr_cr_voucher->date            = $journal->date;
         $dr_cr_voucher->save();
 
         return back()->with('success',"Successfully Added");
     }
 
-    public function receipt_voucher_print($id){
-        $receipt_voucher= ReceiptVoucherTemp::find($id);
+    public function payment_voucher_print($id){
+        $payment_voucher= PaymentVoucherTemp::find($id);
 
-        $words= $this->convert_number($receipt_voucher->amount);
+        $words= $this->convert_number($payment_voucher->amount);
 
-        return view('backend.new-receipt-voucher.print', compact('receipt_voucher','words'));
+        return view('backend.new-payment-voucher.print', compact('payment_voucher','words'));
     }
 
     function convert_number($number) 
@@ -260,7 +250,4 @@ class NewReceiptVoucher extends Controller
         }
         return $result;
     }
-
-    
-
 }

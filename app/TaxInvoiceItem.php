@@ -13,4 +13,12 @@ class TaxInvoiceItem extends Model
     public function truck(){
         return $this->belongsTo(Truck::class,'truck_id');
     }
+
+    public function record(){
+        return $this->belongsTo(TruckRecords::class,'item_id');
+    }
+
+    public function supplier(){
+        return $this->belongsTo(PartyInfo::class,'supplier_id');
+    }
 }

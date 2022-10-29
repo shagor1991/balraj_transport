@@ -50,6 +50,27 @@
             </li>
             @endif
 
+            <li class="navigation-header text-truncate"><span data-i18n="UI Elements">Daily Operation</span> </li>
+            <li class="nav-item {{ Request::is('cost-center-details') || Request::is('cost-center/edit/*') || Request::is('cost-center-details/*') ? 'active' : ''}}">
+                <a href="{{route("vehicle.index")}}">
+                    <i class="bx bx-check-shield"></i>
+                    <span class="menu-title text-truncate" data-i18n="Cost Center">Vehicle</span>
+                </a>
+            </li>
+            <li class="nav-item {{ Request::is('cost-center-details') || Request::is('cost-center/edit/*') || Request::is('cost-center-details/*') ? 'active' : ''}}">
+                <a href="{{route("customer-invoice")}}">
+                    <i class="bx bx-check-shield"></i>
+                    <span class="menu-title text-truncate" data-i18n="Cost Center">Tax Invoice</span>
+                </a>
+            </li>
+            <li class="nav-item {{ Request::is('cost-center-details') || Request::is('cost-center/edit/*') || Request::is('cost-center-details/*') ? 'active' : ''}}">
+                <a href="{{route("supplier-invoice")}}">
+                    <i class="bx bx-check-shield"></i>
+                    <span class="menu-title text-truncate" data-i18n="Cost Center">Supplier Invoice</span>
+                </a>
+            </li>
+            
+
             @if (Auth::user()->hasPermissionAny(['app.master_account.index','app.account_head.index','app.cost_center.index', 'app.profit_center.index', 'app.party_info.index', 'app.journal_entry', 'app.acreport.gl', 'app.acreport.tb', 'app.acreport.is', 'app.acreport.bs', 'app.acreport.cfs', 'app.document']))
 
             <li class="navigation-header text-truncate"><span data-i18n="UI Elements">Accounting</span> </li>
@@ -151,6 +172,12 @@
                 <a href="{{ route('form-receipt-voucher') }}">
                     <i class="bx bx-check-shield"></i>
                     <span class="menu-title text-truncate" data-i18n="Document">Receipt Voucher</span>
+                </a>
+            </li>
+            <li class="nav-item {{ Request::is('document') || Request::is('document/*')  ? 'active' : ''}}">
+                <a href="{{ route('payment-voucher') }}">
+                    <i class="bx bx-check-shield"></i>
+                    <span class="menu-title text-truncate" data-i18n="Document">Payment Voucher</span>
                 </a>
             </li>
 

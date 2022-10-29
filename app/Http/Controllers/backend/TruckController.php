@@ -64,12 +64,7 @@ class TruckController extends Controller
         $data['truck_owner']=$request->fld_truck_owner;
         $data['truck_owner_name']=$request->truck_owner_name;
 
-        // if(Session::get('items')){
-        //     $data[]
-        // }
-
-        // $data[]= $data;
-        // return $data;
+        
         Session::push('items', $data);
         return $request->session()->get('items');
     }
@@ -205,10 +200,11 @@ class TruckController extends Controller
             $supplier_id=$request->supplier_id;
             
             if($request->from !='' && $request->to !=''){
-                $records= TruckRecords::where('truck_owner',$request->supplier_id)->where('is_invoiced', 0)->whereBetween('date',[$request->from,$request->to])->orderBy('id','desc')->paginate(15)->withQueryString();
+                $records= TaxInvoiceItem::where('supplier_id',$request->supplier_id)->where('is_invoiced', 0)->whereBetween('date',[$request->from,$request->to])->orderBy('id','desc')->paginate(15)->withQueryString();
             }else{
-                $records= TruckRecords::where('truck_owner',$request->supplier_id)->where('is_invoiced', 0)->orderBy('id','desc')->paginate(15)->withQueryString();
+                $records= TaxInvoiceItem::where('supplier_id',$request->supplier_id)->where('is_invoiced', 0)->orderBy('id','desc')->paginate(15)->withQueryString();
             }
+            // return $records;
                         
             return view('backend.truck.supplier-invoice', compact('customers', 'trucks','suppliers','records','supplier_id'));
         }
@@ -234,7 +230,7 @@ class TruckController extends Controller
         // return $request;
         $supplier_id= $request->supplier_id;
         $records=$request->records;
-        $records= TruckRecords::whereIn('id',$records)->get();
+        $records= TaxInvoiceItem::whereIn('id',$records)->get();
         $suppliers= PartyInfo::where('pi_type','Supplier')->get();
         $projects= ProjectDetail::all();
         $cost_centers= CostCenter::all();
@@ -244,10 +240,7 @@ class TruckController extends Controller
     }
 
     public function save_customer_invoice(Request $request){
-        // return $request;
-        // return $record_data= TruckRecords::whereIn('id', $request->record_id)->get();
-        // return $record= TruckRecords::find(8);
-        
+                
         $latest_inv_no = TaxInvoice::latest()->first();
         if ($latest_inv_no) {
             $invoice_no= $latest_inv_no->invoice_no+1;
@@ -296,8 +289,14 @@ class TruckController extends Controller
             $inv_item->amount           = $amount;
             $inv_item->vat_rate         = $request->v_rate;
             $inv_item->vat_amount       = $v_amount;
+            $inv_item->record_date      = $record_data->date;
+            $inv_item->supplier_id      = $record_data->truck_owner;
             $inv_item->date             = $request->date;
             $inv_item->save();
+
+            // update record as is_invoiced=1
+            $record_data->is_invoiced   =1;
+            $record_data->save();
 
             $i++;
         }
@@ -472,32 +471,38 @@ class TruckController extends Controller
         $total_amount= 0;
         $total_vat=0;
         foreach($request->record_id as $record){
-            $record_data= TruckRecords::find($record);
+            $record_data= TaxInvoiceItem::find($record);
             // return $record_data->destination;
             $rate= $request->rate[$i];
-            $amount= $record_data->weight*$rate;
+            $amount= $record_data->qty*$rate;
             $v_amount= $amount * $request->v_rate / 100;
             $total_amount= $total_amount+ $amount;
             $total_vat= $total_vat + $v_amount;
 
-            $desc= $record_data->crusher.' To '.$record_data->destination.'('.$record_data->material.') '.$record_data->serial_no; 
+            $desc= $record_data->crusher.' To '.$record_data->destination.'('.$record_data->record->material.') '.$record_data->record->serial_no; 
 
             $inv_item                   = new SupplierInvoiceItem();
             $inv_item->invoice_id       = $tax_invoice->id;
             $inv_item->invoice_no       = $tax_invoice->invoice_no;
-            $inv_item->item_id          = $record;
+            $inv_item->invoice_item_id  = $record;
+            $inv_item->record_id        = $record_data->record->id;
             $inv_item->truck_id         = $record_data->truck_id;
             $inv_item->supplier_id      = $request->supplier_id;
+            $inv_item->customer_id      = $record_data->customer_id;
             $inv_item->description      = $desc;
             $inv_item->crusher          = $record_data->crusher;
             $inv_item->destination      = $record_data->destination;
-            $inv_item->qty              = $record_data->weight;
+            $inv_item->qty              = $record_data->qty;
             $inv_item->rate             = $rate;
             $inv_item->amount           = $amount;
             $inv_item->vat_rate         = $request->v_rate;
             $inv_item->vat_amount       = $v_amount;
             $inv_item->date             = $request->date;
             $inv_item->save();
+
+            // update status of invoice item: is_invoiced=1
+            $record_data->is_invoiced=1;
+            $record_data->save();
 
             $i++;
         }
@@ -511,127 +516,127 @@ class TruckController extends Controller
         // Journal Entry 
         $sub_invoice = Carbon::now()->format('Ymd');
 
-        // $latest_journal_no = Journal::withTrashed()->whereDate('created_at', Carbon::today())->where('journal_no', 'LIKE', "%{$sub_invoice}%")->latest()->first();
+        $latest_journal_no = Journal::withTrashed()->whereDate('created_at', Carbon::today())->where('journal_no', 'LIKE', "%{$sub_invoice}%")->latest()->first();
         
-        // if ($latest_journal_no) {
-        //     $journal_no = substr($latest_journal_no->journal_no,0,-1);
-        //     $journal_code = $journal_no + 1;
-        //     $journal_no = $journal_code . "J";
-        // } else {
-        //     $journal_no = Carbon::now()->format('Ymd') . '001' . "J";
-        // }
-        // $journal= new Journal();
-        // $journal->project_id        = $request->project;
-        // $journal->journal_no        = $journal_no;
-        // $journal->date              = $request->date;
-        // $journal->pay_mode          = $request->pay_mode;
-        // $journal->invoice_no        = $tax_invoice->invoice_no;
-        // $journal->cost_center_id    = $request->cost_center;
-        // $journal->party_info_id     = $request->customer_id;
-        // $journal->account_head_id   = 123;
-        // $journal->amount            = $total_amount;
-        // $journal->tax_rate          = $request->v_rate;
-        // $journal->vat_amount        = $total_vat;
-        // $journal->total_amount      = $total_amount+ $total_vat;
-        // $journal->narration         = 'Transport service provided by '. $request->pay_mode;
-        // $journal->created_by        = Auth::id();
-        // $journal->voucher_type      = 'default';
-        // $journal->save();
+        if ($latest_journal_no) {
+            $journal_no = substr($latest_journal_no->journal_no,0,-1);
+            $journal_code = $journal_no + 1;
+            $journal_no = $journal_code . "J";
+        } else {
+            $journal_no = Carbon::now()->format('Ymd') . '001' . "J";
+        }
+        $journal= new Journal();
+        $journal->project_id        = $request->project;
+        $journal->journal_no        = $journal_no;
+        $journal->date              = $request->date;
+        $journal->pay_mode          = $request->pay_mode;
+        $journal->invoice_no        = $tax_invoice->invoice_no;
+        $journal->cost_center_id    = $request->cost_center;
+        $journal->party_info_id     = $request->supplier_id;
+        $journal->account_head_id   = 123;
+        $journal->amount            = $total_amount;
+        $journal->tax_rate          = $request->v_rate;
+        $journal->vat_amount        = $total_vat;
+        $journal->total_amount      = $total_amount+ $total_vat;
+        $journal->narration         = 'Payment to 3rd party supplier by '. $request->pay_mode;
+        $journal->created_by        = Auth::id();
+        $journal->voucher_type      = 'default';
+        $journal->save();
 
-        // // Main Entry 
-        // $acc_head= AccountHead::find(31);
-        // $jl_record= new JournalRecord();
-        // $jl_record->journal_id          = $journal->id;
-        // $jl_record->project_details_id  = $request->project;
-        // $jl_record->cost_center_id      = $request->cost_center;
-        // $jl_record->party_info_id       = $request->customer_id;
-        // $jl_record->journal_no          = $journal->journal_no;
-        // $jl_record->account_head_id     = $acc_head->id;
-        // $jl_record->master_account_id   = $acc_head->master_account_id;
-        // $jl_record->account_head        = $acc_head->fld_ac_head;
-        // $jl_record->amount              = $total_amount;
-        // $jl_record->transaction_type    = 'CR';
-        // $jl_record->journal_date        = $request->date;
-        // $jl_record->save();
+        // Main Entry 
+        $acc_head= AccountHead::find(34); // 3rd party supplier account head
+        $jl_record= new JournalRecord();
+        $jl_record->journal_id          = $journal->id;
+        $jl_record->project_details_id  = $request->project;
+        $jl_record->cost_center_id      = $request->cost_center;
+        $jl_record->party_info_id       = $request->customer_id;
+        $jl_record->journal_no          = $journal->journal_no;
+        $jl_record->account_head_id     = $acc_head->id;
+        $jl_record->master_account_id   = $acc_head->master_account_id;
+        $jl_record->account_head        = $acc_head->fld_ac_head;
+        $jl_record->amount              = $total_amount;
+        $jl_record->transaction_type    = 'DR';
+        $jl_record->journal_date        = $request->date;
+        $jl_record->save();
 
-        // // vat entry to journal
-        // if($total_vat>0){
-        //     $vat_ac_head= AccountHead::find(32); // vat account
-        //     $jl_record= new JournalRecord();
-        //     $jl_record->journal_id          = $journal->id;
-        //     $jl_record->project_details_id  = $request->project;
-        //     $jl_record->cost_center_id      = $request->cost_center;
-        //     $jl_record->party_info_id       = $request->customer_id;
-        //     $jl_record->journal_no          = $journal->journal_no;
-        //     $jl_record->account_head_id     = $vat_ac_head->id;
-        //     $jl_record->master_account_id   = $vat_ac_head->master_account_id;
-        //     $jl_record->account_head        = $vat_ac_head->fld_ac_head;
-        //     $jl_record->amount              = $total_vat;
-        //     $jl_record->transaction_type    = 'CR';
-        //     $jl_record->journal_date        = $request->date;
-        //     $jl_record->save();
-        // }
+        // vat entry to journal
+        if($total_vat>0){
+            $vat_ac_head= AccountHead::find(32); // vat account
+            $jl_record= new JournalRecord();
+            $jl_record->journal_id          = $journal->id;
+            $jl_record->project_details_id  = $request->project;
+            $jl_record->cost_center_id      = $request->cost_center;
+            $jl_record->party_info_id       = $request->customer_id;
+            $jl_record->journal_no          = $journal->journal_no;
+            $jl_record->account_head_id     = $vat_ac_head->id;
+            $jl_record->master_account_id   = $vat_ac_head->master_account_id;
+            $jl_record->account_head        = $vat_ac_head->fld_ac_head;
+            $jl_record->amount              = $total_vat;
+            $jl_record->transaction_type    = 'DR';
+            $jl_record->journal_date        = $request->date;
+            $jl_record->save();
+        }
 
-        // // Opposit entry of journal
-        // if($request->pay_mode=='Cash' || $request->pay_mode=='Card'){
-        //     $ac_head= AccountHead::find(1);
+        // Opposit entry of journal
+        if($request->pay_mode=='Cash' || $request->pay_mode=='Card'){
+            $ac_head= AccountHead::find(1);
             
-        //     $jl_record= new JournalRecord();
-        //     $jl_record->journal_id          = $journal->id;
-        //     $jl_record->project_details_id  = $request->project;
-        //     $jl_record->cost_center_id      = $request->cost_center;
-        //     $jl_record->party_info_id       = $request->customer_id;
-        //     $jl_record->journal_no          = $journal->journal_no;
-        //     $jl_record->account_head_id     = $ac_head->id;
-        //     $jl_record->master_account_id   = $ac_head->master_account_id;
-        //     $jl_record->account_head        = $ac_head->fld_ac_head;
-        //     $jl_record->amount              = $total_amount+ $total_vat;
-        //     $jl_record->transaction_type    = 'DR';
-        //     $jl_record->journal_date        = $request->date;
-        //     $jl_record->save();
+            $jl_record= new JournalRecord();
+            $jl_record->journal_id          = $journal->id;
+            $jl_record->project_details_id  = $request->project;
+            $jl_record->cost_center_id      = $request->cost_center;
+            $jl_record->party_info_id       = $request->customer_id;
+            $jl_record->journal_no          = $journal->journal_no;
+            $jl_record->account_head_id     = $ac_head->id;
+            $jl_record->master_account_id   = $ac_head->master_account_id;
+            $jl_record->account_head        = $ac_head->fld_ac_head;
+            $jl_record->amount              = $total_amount+ $total_vat;
+            $jl_record->transaction_type    = 'CR';
+            $jl_record->journal_date        = $request->date;
+            $jl_record->save();
 
-        // }elseif($request->pay_mode=='Credit'){
-        //     $acc_head= AccountHead::find(33);
-        //     $jl_record= new JournalRecord();
-        //     $jl_record->journal_id     = $journal->id;
-        //     $jl_record->project_details_id  = $request->project;
-        //     $jl_record->cost_center_id      = $request->cost_center;
-        //     $jl_record->party_info_id       = $request->customer_id;
-        //     $jl_record->journal_no          = $journal->journal_no;
-        //     $jl_record->account_head_id     = $acc_head->id;
-        //     $jl_record->master_account_id   = $acc_head->master_account_id;
-        //     $jl_record->account_head        = $acc_head->fld_ac_head;
-        //     $jl_record->amount              = $total_amount+ $total_vat;
-        //     $jl_record->transaction_type    = 'DR';
-        //     $jl_record->journal_date        = $request->date;
-        //     $jl_record->save();
+        }elseif($request->pay_mode=='Credit'){
+            $acc_head= AccountHead::find(35);
+            $jl_record= new JournalRecord();
+            $jl_record->journal_id     = $journal->id;
+            $jl_record->project_details_id  = $request->project;
+            $jl_record->cost_center_id      = $request->cost_center;
+            $jl_record->party_info_id       = $request->customer_id;
+            $jl_record->journal_no          = $journal->journal_no;
+            $jl_record->account_head_id     = $acc_head->id;
+            $jl_record->master_account_id   = $acc_head->master_account_id;
+            $jl_record->account_head        = $acc_head->fld_ac_head;
+            $jl_record->amount              = $total_amount+ $total_vat;
+            $jl_record->transaction_type    = 'CR';
+            $jl_record->journal_date        = $request->date;
+            $jl_record->save();
             
-        // }
+        }
 
-        // //Debit Voucher Or Credit Voucher 
-        // $voucher_type="DR";
-        // if( $request->pay_mode == 'Cash' || $request->pay_mode == 'Card'){
-        //     // if it is income, liability or equity
-        //     $voucher_type = 'CR';
-        // }elseif($request->pay_mode == 'Credit'){
-        //     $voucher_type            = 'JOURNAL';
-        // }
+        //Debit Voucher Or Credit Voucher 
+        $voucher_type="DR";
+        if( $request->pay_mode == 'Cash' || $request->pay_mode == 'Card'){
+            // if it is expense or asset
+            $voucher_type = 'DR';
+        }elseif($request->pay_mode == 'Credit'){
+            $voucher_type            = 'JOURNAL';
+        }
 
-        // $journal->voucher_type          = $voucher_type;
-        // $journal->save();
+        $journal->voucher_type          = $voucher_type;
+        $journal->save();
 
-        // $dr_cr_voucher= new DebitCreditVoucher();
-        // $dr_cr_voucher->journal_id      = $journal->id;
-        // $dr_cr_voucher->project_id      = $request->project;
-        // $dr_cr_voucher->cost_center_id  = $request->cost_center;
-        // $dr_cr_voucher->party_info_id   = $request->customer_id;
-        // $dr_cr_voucher->account_head_id = 0;
-        // $dr_cr_voucher->pay_mode        = $request->pay_mode;
-        // $dr_cr_voucher->amount          = $total_amount+ $total_vat;
-        // $dr_cr_voucher->narration       = 'Transport service provided by '. $request->pay_mode;
-        // $dr_cr_voucher->type            = $voucher_type;
-        // $dr_cr_voucher->date            = $request->date;
-        // $dr_cr_voucher->save();
+        $dr_cr_voucher= new DebitCreditVoucher();
+        $dr_cr_voucher->journal_id      = $journal->id;
+        $dr_cr_voucher->project_id      = $request->project;
+        $dr_cr_voucher->cost_center_id  = $request->cost_center;
+        $dr_cr_voucher->party_info_id   = $request->supplier_id;
+        $dr_cr_voucher->account_head_id = 0;
+        $dr_cr_voucher->pay_mode        = $request->pay_mode;
+        $dr_cr_voucher->amount          = $total_amount+ $total_vat;
+        $dr_cr_voucher->narration       = 'Payment to 3rd party supplier '. $request->pay_mode;
+        $dr_cr_voucher->type            = $voucher_type;
+        $dr_cr_voucher->date            = $request->date;
+        $dr_cr_voucher->save();
 
 
         $notification= array(
@@ -647,14 +652,29 @@ class TruckController extends Controller
         return view('backend.truck.invoice-list', compact('invoices'));
     }
 
+    public function supplier_invoice_list(){
+        $invoices= SupplierInvoice::all();
+        return view('backend.truck.supplier-invoice-list', compact('invoices'));
+    }
+
     public function invoice_view($id){
         $invoice= TaxInvoice::find($id);
-        // $invoice_items= DB::table('tax_invoice_items')
-        //                 ->select('crusher', 'destination','rate', DB::raw('sum(qty) as total_qty'))
-        //                 ->groupBy('crusher','destination','rate')
-        //                 ->get();
-        // // return $invoice_item;
         return view('backend.truck.invoice-view', compact('invoice'));
+    }
+
+    public function invoice_print($id){
+        $invoice= TaxInvoice::find($id);
+        return view('backend.truck.invoice', compact('invoice'));
+    }
+
+    public function supplier_invoice_print($id){
+        $invoice= SupplierInvoice::find($id);
+        return view('backend.truck.print-supplier-invoice', compact('invoice')); 
+    }
+
+    public function supplier_invoice_view($id){
+        $invoice= SupplierInvoice::find($id);
+        return view('backend.truck.supplier-invoice-view', compact('invoice'));
     }
 
     public function invoice_sumview($id){
@@ -666,6 +686,17 @@ class TruckController extends Controller
         ->get();
         // return $invoice_items;
         return view('backend.truck.invoice-sumview', compact('invoice','invoice_items'));
+    }
+
+    public function supplier_invoice_sumview($id){
+        $invoice= SupplierInvoice::find($id);
+        $invoice_items= DB::table('supplier_invoice_items')
+        ->select('crusher', 'destination','rate','vat_rate', DB::raw('sum(qty) as total_qty'))
+        ->groupBy('crusher','destination','rate','vat_rate')
+        ->where('invoice_id', $id)
+        ->get();
+        // return $invoice_items;
+        return view('backend.truck.supplier-invoice-sumview', compact('invoice','invoice_items'));
     }
 
     /**

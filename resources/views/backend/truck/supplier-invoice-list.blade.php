@@ -39,7 +39,7 @@
                     </div>
                     <div>Supplier</div>
                 </a>
-                <a href="{{route("supplier-invoice-list")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
+                <a href="{{route("supplier-invoice-list")}}" class="nav-item nav-link active" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                     <div class="master-icon text-cente">
                         <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                     </div>
@@ -51,7 +51,7 @@
                     </div>
                     <div>Invoicing</div>
                 </a>
-                <a href="{{route("invoice-list")}}" class="nav-item nav-link active" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
+                <a href="{{route("invoice-list")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                     <div class="master-icon text-cente">
                         <img src="{{asset('assets/backend/app-assets/icon/invoice-list-icon.png')}}" alt="" srcset="" class="img-fluid" width="40">
                     </div>
@@ -94,35 +94,33 @@
                                                 <thead  class="thead-light">
                                                     <tr style="height: 50px;">
                                                         <th>SL No</th>
-                                                        <th>Customer</th>
+                                                        <th>Supplier</th>
                                                         <th>Invoice No</th>
                                                         <th>Date</th>
                                                         <th>Pay Mode</th>
                                                         <th>Amount </th>
-                                                        <th>Action</th>
+                                                        <th class="text-right pr-3">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody class="table-sm">
                                                     @foreach ($invoices as $invoice)
                                                     <tr class="trFontSize">
                                                         <td>{{$loop->index+1}}</td>
-                                                        <td>{{$invoice->customer->pi_name}}</td>
+                                                        <td>{{$invoice->supplier->pi_name}}</td>
                                                         <td>{{$invoice->invoice_no}}</td>
                                                         <td>{{$invoice->date}}</td>
                                                         <td>{{$invoice->pay_mode}}</td>
                                                         <td>{{$invoice->amount}}</td>
-                                                        <td class="">
-                                                            <a href="{{ route('invoice-sumview', $invoice->id)}}" class="btn" target="_blank" title="Edit" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">
+                                                        <td class="text-right pr-1">
+                                                            <a href="{{ route('supplier-invoice-sumview', $invoice->id)}}" class="btn " target="_blank" title="Edit" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">
                                                                 <img src="{{asset('assets/backend/app-assets/icon/invoice-icon.png')}}" style=" height: 30px; width: 30px;">
                                                             </a>
-                                                            <a href="{{ route('invoice-view', $invoice->id)}}" class="btn" target="_blank" title="Edit" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">
+                                                            <a href="{{ route('supplier-invoice-view', $invoice->id)}}" class="btn " title="Edit" target="_blank" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">
                                                                 <img src="{{asset('assets/backend/app-assets/icon/view-icon.png')}}" style=" height: 30px; width: 30px;">
                                                             </a>
-                                                            {{-- <a href="{{ route('supplier-invoice-sumview', $invoice->id)}}"  class="btn " title="Edit" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">
+                                                            {{-- <a href="{{ route('supplier-invoice-sumview', $invoice->id)}}" class="btn " title="Edit" target="_blank" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">
                                                                 <img src="{{asset('assets/backend/app-assets/icon/payment-icon.png')}}" style=" height: 30px; width: 30px;">
                                                             </a> --}}
-
-                                                            
                                                         </td>
                                                     </tr>
                                                     @endforeach

@@ -21,33 +21,39 @@
         <div class="content-wrapper">
             <div class="content-body">
                 <div class="nav nav-tabs master-tab-section" id="nav-tab" role="tablist">
-                    <a href="{{route("truck.index")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false">
+                    <a href="{{route("vehicle.index")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false">
                         <div class="master-icon text-cente">
-                            <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="55">
+                            <img src="{{asset('assets/backend/app-assets/icon/vehicle-icon.png')}}" alt="" srcset="" class="img-fluid" width="100">
                         </div>
-                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Truck List&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vehicle List&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
                     </a>
-                    <a href="{{route('truck-service')}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="parentProfileTab">
+                    <a href="{{route('vehicle-service')}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="parentProfileTab">
                         <div class="master-icon text-cente">
-                            <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                            <img src="{{asset('assets/backend/app-assets/icon/service-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                         </div>
                         <div>&nbsp;&nbsp;&nbsp;Service&nbsp;&nbsp;&nbsp;</div>
                     </a>
                     <a href="{{route("supplier-invoice")}}" class="nav-item nav-link active" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                         <div class="master-icon text-cente">
-                            <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                            <img src="{{asset('assets/backend/app-assets/icon/supplier-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                         </div>
                         <div>Supplier</div>
                     </a>
-                    <a href="{{route("customer-invoice")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
+                    <a href="{{route("supplier-invoice-list")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                         <div class="master-icon text-cente">
                             <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                        </div>
+                        <div>Supplier Invoices</div>
+                    </a>
+                    <a href="{{route("customer-invoice")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
+                        <div class="master-icon text-cente">
+                            <img src="{{asset('assets/backend/app-assets/icon/invoice-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                         </div>
                         <div>Invoicing</div>
                     </a>
                     <a href="{{route("invoice-list")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                         <div class="master-icon text-cente">
-                            <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                            <img src="{{asset('assets/backend/app-assets/icon/invoice-list-icon.png')}}" alt="" srcset="" class="img-fluid" width="40">
                         </div>
                         <div>Invoice List</div>
                     </a>
@@ -125,11 +131,11 @@
                                                                 <td><input type="checkbox" class="checkbox-record" name="records[]" value="{{$t_record->id}}"></td>
                                                                 <td>{{$t_record->date}}</td>
                                                                 <td>{{$t_record->truck->vehicle_number}}</td>
-                                                                <td>{{$t_record->material}}</td>
+                                                                <td>{{$t_record->record->material}}</td>
                                                                 <td>{{$t_record->crusher}}</td>
                                                                 <td>{{$t_record->destination}}</td>
-                                                                <td>{{$t_record->serial_no}}</td>
-                                                                <td>{{$t_record->weight}}</td>
+                                                                <td>{{$t_record->record->serial_no}}</td>
+                                                                <td>{{$t_record->qty}}</td>
                                                                 <td>{{$t_record->supplier->pi_name}}</td>
                                                                 <td class="">
                                                                     <a href="#" class="btn truckInfoEdit" title="Edit" style="padding-top: 1px; padding-bottom: 1px; height: 30px; width: 30px;">

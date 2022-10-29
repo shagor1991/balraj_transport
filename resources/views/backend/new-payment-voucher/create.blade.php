@@ -56,13 +56,13 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="row">
-                                <h4>Receipt voucher</h4>
+                                <h4>Payment voucher</h4>
                                 <hr>
                             </div>
                             @isset($journalF)
                                 <form action="{{ route('journalEntryEditPost', $journalF) }}" method="POST" enctype="multipart/form-data">
                                 @else
-                                    <form action="{{ route('store-receipt-voucher') }}" method="POST" enctype="multipart/form-data">
+                                    <form action="{{ route('store-payment-voucher') }}" method="POST" enctype="multipart/form-data">
                                   @endisset
 
                                     @csrf
@@ -228,7 +228,7 @@
                                                             <select name="voucher_type" id="voucher_type"   class="common-select2 " style="width: 100% !important"
                                                                 required>
                                                                 <option value="due" selected>Due Payment</option>
-                                                                <option value="advance">Advance Payment</option>
+                                                                {{-- <option value="advance">Advance Payment</option> --}}
                                                             </select>
                                                             @error('voucher_type')
                                                                 <div class="btn btn-sm btn-danger">{{ $message }}
@@ -379,7 +379,7 @@
                                 </thead>
 
                                 <tbody class="user-table-body">
-                                    @foreach ($receipt_vouchers as $voucher)
+                                    @foreach ($payment_vouchers as $voucher)
                                         @php
                                             // $rowcount=$journal->records->count(); 
                                         @endphp
@@ -389,7 +389,7 @@
                                             <td>{{ $voucher->pay_mode }}</td>
                                             <td>{{ $voucher->amount }}</td>
                                             <td>
-                                                <a href="{{ route('store-receipt-print', $voucher->id)}}" target="_blank" rel="noopener noreferrer">Print</a>
+                                                <a href="{{ route('payment-voucher-print', $voucher->id)}}" target="_blank" rel="noopener noreferrer">Print</a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -582,7 +582,7 @@
                     var _token = $('input[name="_token"]').val();
                     // alert(value);
                     $.ajax({
-                        url: "{{ route('get-invoice-details') }}",
+                        url: "{{ route('get-supplier-invoice-details') }}",
                         method: "POST",
                         data: {
                             invoice_no: invoice_no,

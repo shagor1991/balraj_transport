@@ -51,7 +51,7 @@
   border-collapse: collapse;
   width: 100%;
 }
-.graph-7{background: url({{asset('img/finallogo.jpeg')}});}
+.graph-7{background: url({{asset('img/finallogoddd.jpeg')}});}
 .graph-image img{display: none;}
 #customers td, #customers th {
   border: 1px solid #ddd;
@@ -74,7 +74,7 @@
 
 }
 .widgets-Statistics2{
-    background-image: url(http://zinith-accounting-inventory-main.test/img/finallogo.jpeg);
+    background-image: url(http://zinith-accounting-inventory-main.test/img/finallogoddd.jpeg);
     opacity: 0.5;
   }
 @media screen {
@@ -91,7 +91,7 @@
     background-color: red;
   }
   .widgets-Statistics2{
-    background-image: url(http://zinith-accounting-inventory-main.test/img/finallogo.jpeg);
+    background-image: url(http://zinith-accounting-inventory-main.test/img/finallogodd.jpeg);
     opacity: 0.5;
   }
 
@@ -121,7 +121,7 @@ $trn_no= \App\Setting::where('config_name', 'trn_no')->first();
                     <div class="container">
                         <div class="row">
                             <div class="col-md-1">
-                                <img src="{{ asset('img/finallogo.jpeg') }}"  style="height: 100px" alt="">
+                                <img src="{{ asset('img/finallogodd.jpeg') }}"  style="height: 100px" alt="">
 
                             </div>
                             <div class="col-md-10 text-center">
@@ -151,7 +151,7 @@ $trn_no= \App\Setting::where('config_name', 'trn_no')->first();
     </div>
 
     <div class="img">
-        <img src="{{ asset('img/finallogo.jpeg') }}" class="img-fluid" style="position: fixed; top:350px; left:270px; opacity:0.1; " alt="">
+        <img src="{{ asset('img/finallogodd.jpeg') }}" class="img-fluid" style="position: fixed; top:350px; left:270px; opacity:0.1; " alt="">
 
         {{-- <img src="{{ asset('img/finallogo.jpeg') }}" class="img-fluid" style="position: fixed; top:100px; left:0px; opacity:0.1;width:100%; " alt=""> --}}
     </div>

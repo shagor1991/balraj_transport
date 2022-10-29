@@ -513,9 +513,9 @@ Route::get('journal-voucher/','backend\JournalEntryController@journal_voucher')-
 
 
 //Truck
-Route::resource('truck','backend\TruckController');
-Route::get('truck-service','backend\TruckController@truck_service')->name('truck-service');
-Route::POST('truck-service','backend\TruckController@save_truck_service')->name('save-truck-service');
+Route::resource('vehicle','backend\TruckController');
+Route::get('vehicle-service','backend\TruckController@truck_service')->name('vehicle-service');
+Route::POST('vehicle-service','backend\TruckController@save_truck_service')->name('save-truck-service');
 Route::POST('add-to-sessions','backend\TruckController@add_to_session')->name('add-to-session');
 Route::POST('remove-session-item','backend\TruckController@remove_item_from_session')->name('remove-session-item');
 Route::get('customer-invoice', 'backend\TruckController@customer_invoice')->name('customer-invoice');
@@ -524,11 +524,23 @@ Route::POST('customer-invoice-save', 'backend\TruckController@save_customer_invo
 Route::get('invoice-list', 'backend\TruckController@invoice_list')->name('invoice-list');
 Route::get('invoice-view/{id}', 'backend\TruckController@invoice_view')->name('invoice-view');
 Route::get('invoice-summery-view/{id}', 'backend\TruckController@invoice_sumview')->name('invoice-sumview');
-
+Route::get('tax-invoice-print/{id}', 'backend\TruckController@invoice_print')->name('invoice-print');
 
 Route::get('supplier', 'backend\TruckController@supplier_invoice')->name('supplier-invoice');
+Route::get('supplier-invoice-list', 'backend\TruckController@supplier_invoice_list')->name('supplier-invoice-list');
 Route::get('supplier-invoice-process', 'backend\TruckController@supplier_invoice_process')->name('supplier-invoice_process');
 Route::POST('supplier-invoice-save', 'backend\TruckController@save_supplier_invoice')->name('save-supplier-invoice');
+Route::get('supplier-invoice-view/{id}', 'backend\TruckController@supplier_invoice_view')->name('supplier-invoice-view');
+Route::get('supplier-invoice-summery-view/{id}', 'backend\TruckController@supplier_invoice_sumview')->name('supplier-invoice-sumview');
+Route::get('supplier-invoice-print/{id}', 'backend\TruckController@supplier_invoice_print')->name('supplier-invoice-print');
+
+
+// Payment voucher
+Route::get('payment-voucher','backend\NewPaymentVoucher@payment_voucher_form')->name('payment-voucher');
+Route::POST('get-supplier-invoice-details','backend\NewPaymentVoucher@get_invoice_details')->name('get-supplier-invoice-details');
+Route::POST('payment-voucher-store','backend\NewPaymentVoucher@payment_voucher_store')->name('store-payment-voucher');
+Route::get('payment-voucher-print/{id}','backend\NewPaymentVoucher@payment_voucher_print')->name('payment-voucher-print');
+
 
 // Shagor End
 

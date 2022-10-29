@@ -21,33 +21,39 @@
     <div class="content-wrapper">
         <div class="content-body">
             <div class="nav nav-tabs master-tab-section" id="nav-tab" role="tablist">
-                <a href="{{route("truck.index")}}" class="nav-item nav-link active" role="tab" aria-controls="nav-contact" aria-selected="false">
+                <a href="{{route("vehicle.index")}}" class="nav-item nav-link active" role="tab" aria-controls="nav-contact" aria-selected="false">
                     <div class="master-icon text-cente">
-                        <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="55">
+                        <img src="{{asset('assets/backend/app-assets/icon/vehicle-icon.png')}}" alt="" srcset="" class="img-fluid" width="100">
                     </div>
-                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Truck List&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Vehicle List&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
                 </a>
-                <a href="{{route('truck-service')}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="parentProfileTab">
+                <a href="{{route('vehicle-service')}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="parentProfileTab">
                     <div class="master-icon text-cente">
-                        <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                        <img src="{{asset('assets/backend/app-assets/icon/service-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                     </div>
                     <div>&nbsp;&nbsp;&nbsp;Service&nbsp;&nbsp;&nbsp;</div>
                 </a>
                 <a href="{{route("supplier-invoice")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                     <div class="master-icon text-cente">
-                        <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                        <img src="{{asset('assets/backend/app-assets/icon/supplier-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                     </div>
                     <div>Supplier</div>
                 </a>
-                <a href="{{route("customer-invoice")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
+                <a href="{{route("supplier-invoice-list")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                     <div class="master-icon text-cente">
                         <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                    </div>
+                    <div>Supplier Invoices</div>
+                </a>
+                <a href="{{route("customer-invoice")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
+                    <div class="master-icon text-cente">
+                        <img src="{{asset('assets/backend/app-assets/icon/invoice-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
                     </div>
                     <div>Invoicing</div>
                 </a>
                 <a href="{{route("invoice-list")}}" class="nav-item nav-link" role="tab" aria-controls="nav-contact" aria-selected="false" id="mJournalAuthorizationSection">
                     <div class="master-icon text-cente">
-                        <img src="{{asset('assets/backend/app-assets/icon/document-icon.png')}}" alt="" srcset="" class="img-fluid" width="50">
+                        <img src="{{asset('assets/backend/app-assets/icon/invoice-list-icon.png')}}" alt="" srcset="" class="img-fluid" width="40">
                     </div>
                     <div>Invoice List</div>
                 </a>
@@ -59,7 +65,7 @@
                             <div class="cardStyleChange">
                                 <div class="card-header">
                                     <div class="d-flex">
-                                        <h4 class="flex-grow-1">Truck List</h4>
+                                        <h4 class="flex-grow-1">Vehicle List</h4>
                                         <div>
                                             <button type="button" class="btn btn-primary btn_create formButton mr-1" title="Add" data-toggle="modal" data-target="#newTruckAddModal">
                                                 <div class="d-flex">
@@ -75,7 +81,7 @@
                                         <div class="col-md-6">
                                             <form  method="get">
                                                 <div class="form-group">
-                                                    <input type="text" class="inputFieldHeight form-control " name="search" placeholder="Search by Truck Number">
+                                                    <input type="text" class="inputFieldHeight form-control " name="search" placeholder="Search by Vehicle Number">
                                                 </div>
                                             </form>
                                         </div>
@@ -143,7 +149,7 @@
                 </div>
             </section>
             <div class="content-body">
-                <form class="form form-vertical" action="{{ route('truck.store')}}" method="POST" enctype="multipart/form-data">
+                <form class="form form-vertical" action="{{ route('vehicle.store')}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <section id="basic-vertical-layouts">
                         <div class="row match-height">
@@ -151,7 +157,7 @@
                                 <div class="cardStyleChange">
                                     <div class="card-body">
                                         <div class="form-body">
-                                            <h4>Truck Information</h4>
+                                            <h4>Vehicle Information</h4>
                                             <div class="row">
                                                 <div class="col-md-4 col-12 ">
                                                     <label for="">Vehicle Number</label>
